@@ -3,6 +3,7 @@
 - https://www.fab.com/ko/listings/13909963-225f-405d-a43a-dc297207d84c
 - https://www.mixamo.com/
 
-[환경]
+[오브젝트]
 울타리 - https://www.fab.com/ko/listings/bd43abe2-889a-4e8e-9ff0-a141dd0bf489
 바위 - https://www.fab.com/ko/listings/dbc49f41-e739-40c4-a09c-3587d30180de
+수갑 - https://www.fab.com/ko/listings/609b2ccd-e631-4dab-a784-56e65e05cb74

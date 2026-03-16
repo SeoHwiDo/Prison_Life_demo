@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 7593793760592353575}
   - component: {fileID: 3833759256991020469}
   m_Layer: 0
-  m_Name: Money
+  m_Name: StackMoney
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
