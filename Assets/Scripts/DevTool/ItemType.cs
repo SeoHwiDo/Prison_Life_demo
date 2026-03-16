@@ -1,0 +1,1 @@
+public enum ItemType { StackOre, StackHandCuffs, StackMoney }
