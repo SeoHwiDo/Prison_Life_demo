@@ -2,31 +2,76 @@ using UnityEngine;
 
 public class TaskManager : MonoBehaviour
 {
-    private ITaskHandler currentTask;
+    private MineHandler mineHandler;
+    private SellHandler sellHandler;
+    private FactoryHandler factoryHandler;
+
+    private bool isInMineZone = false;
+
+    void Awake()
+    {
+        mineHandler = GetComponent<MineHandler>();
+        sellHandler = GetComponent<SellHandler>();
+        factoryHandler = GetComponent<FactoryHandler>();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        // 부딪힌 오브젝트에서 ITaskZone 인터페이스를 구현한 컴포넌트를 찾음
-        ITaskHandler task = other.GetComponent<ITaskHandler>();
-
-        if (task != null)
+        string tag = other.tag;
+        Debug.Log(tag);
+        switch (tag)
         {
-            currentTask = task;
-            currentTask.StartTask(gameObject);
-            Debug.Log($"{other.name} 작업 시작");
+            case "Mine":
+                isInMineZone = true;
+                break;
+
+            case "Ore":
+                if (isInMineZone && other.TryGetComponent<OreReSpawn>(out var ore))
+                    mineHandler?.StartMining(ore);
+                break;
+
+            case "Sell":
+                sellHandler?.StartSell();
+                break;
+
+            case "FactoryInput":
+                // 구역 오브젝트(공장)에 붙은 Output Stacker를 가져옴 
+                if (other.TryGetComponent<ItemStacker>(out var fInputStack))
+                    factoryHandler?.StartInput(fInputStack);
+                break;
+
+            case "FactoryOutput":
+                if (other.TryGetComponent<ItemStacker>(out var fOutputStack))
+                    factoryHandler?.StartOutput(fOutputStack);
+                break;
         }
     }
 
     private void OnTriggerExit(Collider other)
     {
-        ITaskHandler task = other.GetComponent<ITaskHandler>();
+        string tag = other.tag;
 
-        // 현재 작업 중인 구역에서 나가는 경우에만 정지
-        if (task != null && task == currentTask)
+        switch (tag)
         {
-            currentTask.StopTask();
-            currentTask = null;
-            Debug.Log($"{other.name} 작업 종료");
+            case "Mine":
+                isInMineZone = false;
+                mineHandler?.StopMining();
+                break;
+
+            case "Ore":
+                mineHandler?.StopMining();
+                break;
+
+            case "Sell":
+                sellHandler?.StopSell();
+                break;
+
+            case "FactoryInput":
+                factoryHandler?.StopInput();
+                break;
+            case "FactoryOutput":
+                factoryHandler?.StopOutput();
+                break;
         }
     }
 }
