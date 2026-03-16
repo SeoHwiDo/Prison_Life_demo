@@ -30,8 +30,13 @@ public class TaskManager : MonoBehaviour
                     mineHandler?.StartMining(ore);
                 break;
 
-            case "Sell":
-                sellHandler?.StartSell();
+            case "SellInput":
+                if (other.TryGetComponent<ItemStacker>(out var sInputStack))
+                    sellHandler.StartInput(sInputStack);
+                break;
+            case "SellOutput":
+                if (other.TryGetComponent<ItemStacker>(out var sOutputStack))
+                    sellHandler.StartOutput(sOutputStack);
                 break;
 
             case "FactoryInput":
@@ -62,8 +67,11 @@ public class TaskManager : MonoBehaviour
                 mineHandler?.StopMining();
                 break;
 
-            case "Sell":
-                sellHandler?.StopSell();
+            case "SellInput":
+                sellHandler?.StopInput();
+                break;
+            case "SellOutput":
+                sellHandler?.StopOutput();
                 break;
 
             case "FactoryInput":
