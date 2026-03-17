@@ -48,25 +48,23 @@ public class NPCQueueManager : MonoBehaviour
         if (toSellQueue.Count > 0)
         {
             var topNpc = toSellQueue[0];
-            if (sellToNPC.CurrentWorker!=null)
+         
+            if (sellToNPC.CurrentWorker != null&&topNpc.HasReachedDestination() && !topNpc.IsProcessed)
             {
-                if (topNpc.HasReachedDestination() && !topNpc.IsProcessed)
-                {
-                    sellToNPC.CurrentWorker.StartSellTask(topNpc,sellZoneHandcuffStacker, sellZoneMoneyStacker);
-                }
-                else
-                    sellToNPC.CurrentWorker.StopSellTask();
-                if (toSellQueue.Count > 0 && toSellQueue[0].IsProcessed && toPrisonQueue.Count < toPrisonPoints.Count)
-                {
-                    var npc = toSellQueue[0]; toSellQueue.RemoveAt(0); toPrisonQueue.Add(npc);
-                    UpdatePos(toSellQueue, toSellPoints); UpdatePos(toPrisonQueue, toPrisonPoints);
-                }
+                sellToNPC.CurrentWorker.StartSellTask(topNpc,sellZoneHandcuffStacker, sellZoneMoneyStacker);
+            }
+            else
+                sellToNPC.CurrentWorker?.StopSellTask();
+            if (toSellQueue.Count > 0 && toSellQueue[0].IsProcessed && toPrisonQueue.Count < toPrisonPoints.Count)
+            {
+                var npc = toSellQueue[0]; toSellQueue.RemoveAt(0); toPrisonQueue.Add(npc);
+                UpdatePos(toSellQueue, toSellPoints); UpdatePos(toPrisonQueue, toPrisonPoints);
+            }
 
-                if (toPrisonQueue.Count > 0 && toPrisonQueue[0].HasReachedDestination() && prisonerManager.CanAddPrisoner())
-                {
-                    var npc = toPrisonQueue[0]; toPrisonQueue.RemoveAt(0);
-                    prisonerManager.AddPrisonerToArea(npc); UpdatePos(toPrisonQueue, toPrisonPoints);
-                }
+            if (toPrisonQueue.Count > 0 && toPrisonQueue[0].HasReachedDestination() && prisonerManager.CanAddPrisoner())
+            {
+                var npc = toPrisonQueue[0]; toPrisonQueue.RemoveAt(0);
+                prisonerManager.AddPrisonerToArea(npc); UpdatePos(toPrisonQueue, toPrisonPoints);
             }
             
         }
