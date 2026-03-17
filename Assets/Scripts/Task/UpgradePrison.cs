@@ -7,6 +7,6 @@ public class UpgradePrison : MonoBehaviour
     [SerializeField]private PrisonerManager prisonerManager;
     private void OnTriggerEnter(Collider other)
     {
-        prisonerManager.ExpandPrisonArea(prisonerManager.CurrentTileCount);
+        prisonerManager.ExpandPrison();
     }
 }
