@@ -1,97 +1,107 @@
 using UnityEngine;
+using UnityEngine.UI; // Image 컴포넌트 사용을 위해 추가
 using System.Collections;
 
 public class PoterRecruiter : MonoBehaviour
 {
     [Header("Recruit Settings")]
-    [SerializeField] private GameObject prisonerPrefab; // 소환할 일꾼 프리팹
-    [SerializeField] private int price = 100;           // 전체 고용 가격
-    [SerializeField] private int recruitCount = 1;      // 한 번에 소환할 일꾼 수
-    [SerializeField] private Transform spawnPoint;      // 소환 위치
-    [SerializeField] private Transform oreContainer;    // 소환된 일꾼에게 할당할 광석 부모
+    [SerializeField] private GameObject[] prisoners;
+    [SerializeField] private int price = 100;
 
     [Header("UI & Visuals")]
-    [SerializeField] private ItemStacker progressStacker; // 돈이 쌓이는 시각적 스태커
-    [SerializeField] private float processTime = 0.2f;    // 돈 한 개당 소모 속도
+    [SerializeField] private ItemStacker progressStacker;
+    [SerializeField] private Image progressImage;         // 진행도를 표시할 UI 이미지
+    [SerializeField] private float processTime = 0.2f;
 
-    private bool isProcessing = false;
+    private bool isPlayerInside = false;
+    private bool isSpawned = false;
+
+    void Start()
+    {
+        // 시작 시 기존에 저장된 진행도가 있다면 UI에 반영
+        UpdateUI();
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (isProcessing) return;
+        if (isSpawned) return;
 
-        // 1. 플레이어 태그 확인 (필요 시) 및 돈 확인
-        // 기존 코드의 10배 배율 유지 (money 1개 = 가치 10)
-        if (other.CompareTag("Player") && GameManager.Instance.PlayerMoney.CurrentCount * 10 >= price)
+        if (other.CompareTag("Player"))
         {
-            StartCoroutine(RecruitRoutine());
+            isPlayerInside = true;
+            StopAllCoroutines();
+            StartCoroutine(PaymentRoutine());
         }
     }
 
-    private IEnumerator RecruitRoutine()
+    private void OnTriggerExit(Collider other)
     {
-        isProcessing = true;
+        if (other.CompareTag("Player"))
+        {
+            isPlayerInside = false;
+        }
+    }
+
+    private IEnumerator PaymentRoutine()
+    {
         int targetStackCount = price / 10;
 
-        // 2. 돈 지불 과정 (시각적 연출)
-        while (progressStacker.CurrentCount < targetStackCount)
+        while (isPlayerInside && progressStacker.CurrentCount < targetStackCount)
         {
-            GameObject money = GameManager.Instance.PlayerMoney.PopItem();
-            if (money != null)
+            if (GameManager.Instance.PlayerMoney.CurrentCount > 0)
             {
-                Destroy(money);
-                progressStacker.AddItem(); // 진행도 스택 추가
+                GameObject money = GameManager.Instance.PlayerMoney.PopItem();
+                if (money != null)
+                {
+                    Destroy(money);
+                    progressStacker.AddItem();
+
+                    // 돈이 추가될 때마다 UI 업데이트
+                    UpdateUI();
+                }
             }
             else
             {
-                // 돈이 모자라면 중단 (예외 처리)
-                Debug.Log("고용 중 돈이 부족합니다.");
-                isProcessing = false;
-                yield break;
+                yield return new WaitForSeconds(0.5f);
+                continue;
             }
 
             yield return new WaitForSeconds(processTime);
         }
 
-        // 3. 고용 완료 및 일꾼 소환
+        if (progressStacker.CurrentCount >= targetStackCount)
+        {
+            CompleteRecruit();
+        }
+    }
+
+    // UI의 fillAmount를 계산하여 업데이트하는 메서드
+    private void UpdateUI()
+    {
+        if (progressImage != null)
+        {
+            float targetStackCount = price / 10f;
+            // 수식: 현재 쌓인 개수 / 목표 개수
+            progressImage.fillAmount = (float)progressStacker.CurrentCount / targetStackCount;
+        }
+    }
+
+    private void CompleteRecruit()
+    {
+        isSpawned = true;
+        // 완료 시 게이지를 꽉 채움
+        if (progressImage != null) progressImage.fillAmount = 1f;
+
         SpawnPrisoners();
-
-        // 4. 후처리 (진행도 초기화 및 발판 비활성화 또는 재사용 설정)
-        progressStacker.PopItems(targetStackCount);
-
-        // 일회성 구매라면 아래 주석 해제
-        // gameObject.SetActive(false); 
-
-        isProcessing = false;
+        gameObject.SetActive(false);
     }
 
     private void SpawnPrisoners()
     {
-        for (int i = 0; i < recruitCount; i++)
+        foreach (var prisoner in prisoners)
         {
-            GameObject prisoner = Instantiate(prisonerPrefab, spawnPoint.position, spawnPoint.rotation);
-
-            // 소환된 AI에게 광석 정보 할당
-            if (prisoner.TryGetComponent<PrisonerMiningAI>(out var ai))
-            {
-                // Reflection이나 Public 필드를 통해 oreContainer 주입
-                // (이전에 만든 PrisonerMiningAI에 oreContainer 필드가 있어야 함)
-                SetOreContainer(ai);
-            }
-
-            Debug.Log($"일꾼 소환 완료! ({i + 1}/{recruitCount})");
+            if (prisoner != null) prisoner.SetActive(true);
         }
-    }
 
-    private void SetOreContainer(PrisonerMiningAI ai)
-    {
-        // 리플렉션을 사용하거나, PrisonerMiningAI의 oreContainer를 public으로 바꿔서 할당
-        var field = typeof(PrisonerMiningAI).GetField("oreContainer",
-            System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
-
-        if (field != null)
-        {
-            field.SetValue(ai, oreContainer);
-        }
     }
 }

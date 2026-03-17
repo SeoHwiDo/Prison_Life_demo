@@ -11,6 +11,6 @@ public class MoneyUI : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        m_TextMeshPro.text = $"{GameManager.Instance.PlayerMoney.CurrentCount}";
+        m_TextMeshPro.text = $"{GameManager.Instance.PlayerMoney.CurrentCount*10}";
     }
 }

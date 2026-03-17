@@ -31,7 +31,6 @@ public class OreReSpawn : MonoBehaviour
         bIsCanMine = false;
 
         // 1. 시각적/물리적 비활성화
-        Debug.Log($"{gameObject.name} 채집됨. {respawnTime}초 후 재생성.");
         meshChild.SetActive(false);
         if (objectCollider != null) objectCollider.enabled = false;
 
@@ -43,6 +42,5 @@ public class OreReSpawn : MonoBehaviour
         if (objectCollider != null) objectCollider.enabled = true;
         bIsCanMine = true;
 
-        Debug.Log($"{gameObject.name} 재생성 완료.");
     }
 }

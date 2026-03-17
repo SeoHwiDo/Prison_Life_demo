@@ -86,19 +86,23 @@ public class PrisonerSellAI : MonoBehaviour
     private void DetermineNextState()
     {
         // 1. Sell 구역(Input)에 수갑이 0보다 많으면 NPC 판매 위치로 이동
-        if (GetStackCount(sellInputPoint) > 0)
+        if (GetStackCount(sellInputPoint) > 4)
         {
             currentState = LogisticsState.MovingToNpcSell;
         }
         // 2. 내 가방에 물건이 있으면 판매 구역(Input)으로 이동
-        else if (myStacker.CurrentCount > 0)
+        else if (myStacker.CurrentCount > 4)
         {
             currentState = LogisticsState.MovingToSell;
         }
-        // 3. 둘 다 아니면 공장으로 이동
-        else
+        // 3. 공장에 수갑이 있으면 공장으로 이동
+        else if (GetStackCount(factoryOutputPoint) > 0)
         {
             currentState = LogisticsState.MovingToFactory;
+        }
+        else
+        {
+            currentState = LogisticsState.Idle;
         }
     }
 
@@ -139,7 +143,7 @@ public class PrisonerSellAI : MonoBehaviour
         bool isMoneyStackerFull = sellMoneyStacker != null && !sellMoneyStacker.CanStack;
 
         // Sell의 수갑이 0이 되거나, 돈 스태커에 빈자리가 없으면 다시 행동 결정(Idle)
-        if (sellHandcuffsCount <= 0 || isMoneyStackerFull)
+        if (sellHandcuffsCount <= 3 || isMoneyStackerFull)
         {
             currentState = LogisticsState.Idle;
         }

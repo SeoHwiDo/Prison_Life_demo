@@ -19,7 +19,7 @@ public class PrisonerManager : MonoBehaviour
     [SerializeField] private  Transform enterTile = null; // 감옥 입구 타일 막지 않도록 참조
     
     [Header("Capacity Settings")]
-    [SerializeField] private int maxPrisonerCapacity = 10; // 별도로 관리하는 수용 가능 인원
+    [SerializeField] private int maxPrisonerCapacity = 20; // 별도로 관리하는 수용 가능 인원
     
     private List<Transform> activeTiles = new List<Transform>();
     private List<NPCController> prisonerQueue = new List<NPCController>();

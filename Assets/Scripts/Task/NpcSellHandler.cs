@@ -4,8 +4,9 @@ using System.Collections;
 public class NPCSellHandler : MonoBehaviour
 {
     private Coroutine sellRoutine;
+    private int needHandcuffs = 4; 
+    private int returnMoney = 6; 
 
-  
     public void StartSellTask(NPCController targetNpc, ItemStacker handcuffSource, ItemStacker moneySink)
     {
         if (sellRoutine != null) return;
@@ -24,13 +25,14 @@ public class NPCSellHandler : MonoBehaviour
         // 수갑이 생길 때까지 대기 혹은 반복 체크
         while (!targetNpc.IsProcessed)
         {
-            if (handcuffSource.CurrentCount > 0 && moneySink.CanStack)
+            if (handcuffSource.CurrentCount >= needHandcuffs && moneySink.CanStack)
             {
                 // 1. 작업 수행
-                GameObject cuff = handcuffSource.PopItem();
-                if (cuff != null) Destroy(cuff);
+                var cuffs = handcuffSource.PopItems(needHandcuffs);
+                foreach ( var cuff in cuffs )
+                    if (cuff != null) Destroy(cuff);
 
-                moneySink.AddItem();
+                moneySink.AddItems(returnMoney);
 
                 // 2. NPC 상태 변경
                 targetNpc.MarkAsProcessed();

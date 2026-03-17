@@ -4,8 +4,8 @@ using UnityEngine;
 public class TaskManager : MonoBehaviour
 {
     [SerializeField,ReadOnly]private MineHandler mineHandler;
-    private SellHandler sellHandler;
-    private FactoryHandler factoryHandler;
+    [SerializeField, ReadOnly] private SellHandler sellHandler;
+    [SerializeField, ReadOnly] private FactoryHandler factoryHandler;
     private EquipmentManager equipment; // 로컬 장비 관리자 참조 추가
     private bool isInMineZone = false;
 
@@ -34,7 +34,7 @@ public class TaskManager : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         string tag = other.tag;
-        Debug.Log(tag);
+        
         switch (tag)
         {
             case "Mine":
@@ -63,8 +63,12 @@ public class TaskManager : MonoBehaviour
                 break;
 
             case "FactoryOutput":
+                Debug.Log(tag);
                 if (other.TryGetComponent<ItemStacker>(out var fOutputStack))
+                {
                     factoryHandler?.StartOutput(fOutputStack);
+
+                }
                 break;
         }
     }

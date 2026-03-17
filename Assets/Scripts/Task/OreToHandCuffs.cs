@@ -8,7 +8,7 @@ public class OreToHandCuffs : MonoBehaviour
     [SerializeField] private ItemStacker outputStacker; // Handcuffs가 쌓이는 곳 (FactoryOutput 구역)
 
     [Header("Process Settings")]
-    [SerializeField] private float processTime = 2.0f;   // 아이템 1개 가공에 걸리는 시간
+    [SerializeField] private float processTime = 1.0f;   // 아이템 1개 가공에 걸리는 시간
 
     private bool isProcessing = false;
 
@@ -34,15 +34,13 @@ public class OreToHandCuffs : MonoBehaviour
                     Destroy(ore); // 혹은 가공 중인 시각적 연출을 위해 기계 안으로 이동시킬 수 있음
                 }
 
-                Debug.Log("가공 중...");
 
                 // 3. 가공 시간 대기
                 yield return new WaitForSeconds(processTime);
 
                 // 4. 결과물 생성 (출력 스태커에 추가)
-                outputStacker.AddItem();
+                outputStacker.AddItems(2);
 
-                Debug.Log("가공 완료! 결과물 생성.");
             }
             else
             {

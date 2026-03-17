@@ -10,30 +10,48 @@ public enum ActivationCondition
 public class RequirementActivator : MonoBehaviour
 {
     [Header("Target")]
-    [SerializeField] private GameObject targetObject; // 활성화/비활성화할 대상
+    [SerializeField] private GameObject targetObject;
 
     [Header("Conditions")]
     [SerializeField] private ActivationCondition condition;
     [SerializeField] private int moneyThreshold;
     [SerializeField] private ToolType requiredTool;
 
-    private ItemStacker playerMoney; // 플레이어 돈 (UI 연동용)
+    private ItemStacker playerMoney;
     private EquipmentManager equipmentManager;
+
+    // [추가] 한 번이라도 활성화되었는지 체크하는 플래그
+    private bool hasBeenActivated = false;
+
     private void Start()
     {
-        playerMoney=GameManager.Instance.PlayerMoney;
-        equipmentManager=GameManager.Instance.PlayerEquip;
+        playerMoney = GameManager.Instance.PlayerMoney;
+        equipmentManager = GameManager.Instance.PlayerEquip;
+
+        // 시작 시점에 이미 켜져 있다면 활성화된 것으로 간주할지 선택 (기본은 false)
+        if (targetObject != null && targetObject.activeSelf)
+        {
+            hasBeenActivated = true;
+        }
     }
+
     private void Update()
     {
         if (targetObject == null) return;
 
-        bool isConditionMet = CheckCondition();
-
-        // 조건 충족 시 오브젝트 활성화, 미충족 시 비활성화
-        if (isConditionMet)
+        // 1. 이미 한 번 활성화된 적이 있는데, 지금 오브젝트가 꺼져 있다면?
+        if (hasBeenActivated && !targetObject.activeSelf)
         {
-            targetObject.SetActive(isConditionMet);
+            // 이 스크립트를 비활성화하여 다시는 Update가 실행되지 않게 함
+            this.enabled = false;
+            return;
+        }
+
+        // 2. 아직 활성화되지 않은 상태에서 조건을 체크
+        if (!hasBeenActivated && CheckCondition())
+        {
+            targetObject.SetActive(true);
+            hasBeenActivated = true; // 활성화됨을 기록
         }
     }
 

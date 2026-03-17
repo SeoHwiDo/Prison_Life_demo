@@ -9,7 +9,7 @@ public class SequentialToolShop : MonoBehaviour
     [SerializeField] private int price;            // 가격
     [SerializeField] private ToolType requiredTool;    // 구매를 위해 필요한 '이전' 단계 (0, 1, 2...)
     [SerializeField] private ItemStacker outputStacker; // 가공 결과물을 생성할 스태커
-    private float processTime = 2.0f;
+    private float processTime = 0.2f;
     private bool isProcessing = false;
     public bool IsProcessing => isProcessing;
     private void OnTriggerEnter(Collider other)
