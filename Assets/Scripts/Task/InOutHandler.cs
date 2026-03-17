@@ -8,8 +8,8 @@ public abstract class InOutHandler : MonoBehaviour
     private Coroutine outputRoutine;
 
     // 자식 클래스에서 접근할 수 있도록 protected로 설정
-    [SerializeField, ReadOnly] protected ItemStacker agentInputSource; // 에이전트가 줄 아이템 스택
-    [SerializeField, ReadOnly] protected ItemStacker agentOutputSink;  // 에이전트가 받을 아이템 스택
+    [SerializeField] protected ItemStacker agentInputSource; // 에이전트가 줄 아이템 스택
+    [SerializeField] protected ItemStacker agentOutputSink;  // 에이전트가 받을 아이템 스택
 
     [Header("Settings")]
     [SerializeField] protected float inputInterval = 1.0f;

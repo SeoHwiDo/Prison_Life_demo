@@ -4,14 +4,13 @@ using System.Collections;
 public class MineHandler : MonoBehaviour
 {
     private Coroutine taskRoutine;
-    private EquipmentManager equipment;
-    private ItemStacker oreStacker;
+    [SerializeField] private EquipmentManager equipment;
+    [SerializeField] private ItemStacker oreStacker;
 
     void Awake()
     {
         equipment = GetComponent<EquipmentManager>();
         // 확장 메서드를 사용하여 Ore 타입의 스태커 참조
-        oreStacker = gameObject.GetStacker(ItemType.StackOre);
     }
 
     public void StartMining(OreReSpawn targetOre)
