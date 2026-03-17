@@ -40,7 +40,7 @@ public class PrisonerManager : MonoBehaviour
             Debug.Log("NavMesh 실시간 베이크 완료");
         }
     }
-    public int CurruntTileCount=> activeTiles.Count;
+    public int CurrentTileCount=> activeTiles.Count;
     // --- 수용량 관련 공용 인터페이스 ---
 
     public int MaxCapacity => maxPrisonerCapacity;
