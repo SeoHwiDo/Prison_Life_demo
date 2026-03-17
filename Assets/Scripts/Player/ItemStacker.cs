@@ -15,8 +15,8 @@ public class ItemStacker : MonoBehaviour
     [SerializeField] private int maxPerColumn = 10;    // 한 열에 쌓을 수 있는 최대 높이
 
     [Header("Auto Calculated Offsets")]
-    [SerializeField, ReadOnly] private Vector2 stackOffset; // X: 열 간격, Y: 높이 간격
-
+    [SerializeField, ReadOnly] private Vector2 stackOffset; // Z(x): 행 간격, Y(y): 높이 간격
+    private PlayerStackManager parentManager;
     private string prefabPath="Items/";
     private List<GameObject> stackedItems = new List<GameObject>();
 
@@ -24,10 +24,11 @@ public class ItemStacker : MonoBehaviour
     public bool CanStack => stackedItems.Count < (columnCount * maxPerColumn);
     public int CurrentCount => stackedItems.Count;
     public int MaxCapacity => columnCount * maxPerColumn;
-
+    public float StackOffset => stackOffset.x;
     private void Awake()
     {
         // 게임 시작 시 프리팹 로드 확인
+        parentManager = GetComponentInParent<PlayerStackManager>();
         LoadPrefabByTypeName();
     }
     private void OnValidate()
@@ -72,11 +73,13 @@ public class ItemStacker : MonoBehaviour
     public void AddItem()
     {
         if (!CanStack || itemPrefab == null) return;
-
         GameObject newItem = Instantiate(itemPrefab, stackPivot);
         newItem.transform.localPosition = CalculateLocalPosition(stackedItems.Count);
         newItem.transform.localRotation = Quaternion.identity;
         stackedItems.Add(newItem);
+        parentManager?.RefreshStackLayout();
+
+
     }
 
     // --- 일괄 제거 기능 ---
@@ -94,17 +97,23 @@ public class ItemStacker : MonoBehaviour
 
     public GameObject PopItem()
     {
-        if (stackedItems.Count == 0) return null;
+        if (stackedItems.Count == 0)
+        {
+            return null;
+        }
         int lastIndex = stackedItems.Count - 1;
         GameObject item = stackedItems[lastIndex];
         stackedItems.RemoveAt(lastIndex);
+        parentManager?.RefreshStackLayout();
+
         return item;
+
     }
 
     // --- 좌표 계산 로직 (Grid System) ---
     private Vector3 CalculateLocalPosition(int index)
     {
-        // 1. 가로(열) 위치 계산: index % columnCount
+        // 1. 가로(행) 위치 계산: index % columnCount
         // 2. 세로(층) 위치 계산: index / columnCount
         int col = index % columnCount;
         int row = index / columnCount;
