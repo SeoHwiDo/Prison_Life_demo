@@ -1,11 +1,12 @@
+using ReadOnlyDrawer;
 using UnityEngine;
 
 public class TaskManager : MonoBehaviour
 {
-    private MineHandler mineHandler;
+    [SerializeField,ReadOnly]private MineHandler mineHandler;
     private SellHandler sellHandler;
     private FactoryHandler factoryHandler;
-
+    private EquipmentManager equipment; // 로컬 장비 관리자 참조 추가
     private bool isInMineZone = false;
 
     void Awake()
@@ -13,6 +14,21 @@ public class TaskManager : MonoBehaviour
         mineHandler = GetComponent<MineHandler>();
         sellHandler = GetComponent<SellHandler>();
         factoryHandler = GetComponent<FactoryHandler>();
+        equipment = GetComponent<EquipmentManager>();
+    }
+    public void SetInMineZone(bool inZone)
+    {
+        isInMineZone = inZone;
+        if (equipment != null) equipment.SetMineAreaPresence(inZone);
+
+        if (!inZone) mineHandler?.StopMining();
+    }
+    public void RequestAddOre(OreReSpawn ore)
+    {
+        if (isInMineZone && ore != null && ore.IsCanMine)
+        {
+            mineHandler?.AddOre(ore);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -22,21 +38,22 @@ public class TaskManager : MonoBehaviour
         switch (tag)
         {
             case "Mine":
-                isInMineZone = true;
+                SetInMineZone(true);
                 break;
 
             case "Ore":
-                if (isInMineZone && other.TryGetComponent<OreReSpawn>(out var ore))
-                    mineHandler?.StartMining(ore);
+                // 특정 광석을 시작하는게 아니라 리스트에 추가함
+                if (other.TryGetComponent<OreReSpawn>(out var ore))
+                    RequestAddOre(ore);
                 break;
 
             case "SellInput":
                 if (other.TryGetComponent<ItemStacker>(out var sInputStack))
-                    sellHandler.StartInput(sInputStack);
+                    sellHandler?.StartInput(sInputStack);
                 break;
             case "SellOutput":
                 if (other.TryGetComponent<ItemStacker>(out var sOutputStack))
-                    sellHandler.StartOutput(sOutputStack);
+                    sellHandler?.StartOutput(sOutputStack);
                 break;
 
             case "FactoryInput":
@@ -59,14 +76,12 @@ public class TaskManager : MonoBehaviour
         switch (tag)
         {
             case "Mine":
-                isInMineZone = false;
-                mineHandler?.StopMining();
+                SetInMineZone(false);
                 break;
-
             case "Ore":
-                mineHandler?.StopMining();
+                if (other.TryGetComponent<OreReSpawn>(out var ore))
+                    mineHandler?.RemoveOre(ore);
                 break;
-
             case "SellInput":
                 sellHandler?.StopInput();
                 break;
@@ -80,6 +95,20 @@ public class TaskManager : MonoBehaviour
             case "FactoryOutput":
                 factoryHandler?.StopOutput();
                 break;
+        }
+    }
+    private void OnTriggerStay(Collider other)
+    {
+        if (other.CompareTag("Ore") && isInMineZone)
+        {
+            // 곡괭이가 아닐 때만 작동하게 설계됨
+            if (GameManager.Instance.PlayerEquip.CurrentTool != ToolType.Pickaxe)
+            {
+                if (other.TryGetComponent<OreReSpawn>(out var ore))
+                {
+                    mineHandler?.AddOre(ore);
+                }
+            }
         }
     }
 }

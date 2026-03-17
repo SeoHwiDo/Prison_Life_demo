@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour
     // 애니메이터 파라미터 캐싱 (성능 최적화)
     private readonly int hashSpeed = Animator.StringToHash("MoveSpeed");
     private readonly int hashIsMoving = Animator.StringToHash("IsMoving");
+    private readonly int hashHasObj = Animator.StringToHash("HasObj");
 
     void Awake()
     {
@@ -28,6 +29,14 @@ public class PlayerController : MonoBehaviour
     {
         Move();
         ApplyGravity();
+        if (GameManager.Instance.PlayerHandCuffs.CurrentCount > 0)
+        {
+            animator.SetBool(hashHasObj, true);
+        }
+        else
+        {
+            animator.SetBool(hashHasObj, false);
+        }
     }
 
     private void Move()
@@ -54,6 +63,7 @@ public class PlayerController : MonoBehaviour
             {
                 animator.SetFloat(hashSpeed, input.magnitude);
                 animator.SetBool(hashIsMoving, true);
+               
             }
         }
         else

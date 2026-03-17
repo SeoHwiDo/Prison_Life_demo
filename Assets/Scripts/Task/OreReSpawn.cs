@@ -11,6 +11,7 @@ public class OreReSpawn : MonoBehaviour
 
     private Collider objectCollider;
     private bool bIsCanMine = true;
+    public bool IsCanMine => bIsCanMine;
     void Awake()
     {
         objectCollider = GetComponent<Collider>();

@@ -8,7 +8,7 @@ public class ItemStacker : MonoBehaviour
     [Header("Item Settings")]
     [SerializeField] private ItemType itemType;       // 이 스태커가 취급하는 타입
     [SerializeField,ReadOnly] private GameObject itemPrefab;   // 쌓을 아이템 모델
-
+    [SerializeField] private StackerFeedback feedback; // 피드백 스크립트 연결
     [Header("Stack Layout Settings")]
     [SerializeField] private Transform stackPivot;
     [SerializeField] private int columnCount = 1;      // 가로 열 개수
@@ -23,7 +23,17 @@ public class ItemStacker : MonoBehaviour
     public ItemType MyItemType => itemType;
     public bool CanStack => stackedItems.Count < (columnCount * maxPerColumn);
     public int CurrentCount => stackedItems.Count;
-    public int MaxCapacity => columnCount * maxPerColumn;
+    public int MaxCapacity
+    {
+        get => columnCount * maxPerColumn;
+        set
+        {
+            if (maxPerColumn <= 0) return;
+
+            maxPerColumn = Mathf.CeilToInt(value/(float)columnCount);
+
+        }
+    }
     public float StackOffset => stackOffset.x;
     private void Awake()
     {
@@ -65,18 +75,34 @@ public class ItemStacker : MonoBehaviour
     {
         for (int i = 0; i < count; i++)
         {
-            if (!CanStack) break;
-            AddItem();
+            if (!CanStack && feedback != null)
+            {
+                Debug.Log("AddItems에서 막힘");
+                feedback.ShowMax();
+                break;
+            }
+                AddItem();
         }
     }
 
     public void AddItem()
     {
-        if (!CanStack || itemPrefab == null) return;
+        if (!CanStack)
+        {
+            Debug.Log("AddItem 1에서 막힘");
+
+            if (feedback != null) feedback.ShowMax();
+            return;
+        }
         GameObject newItem = Instantiate(itemPrefab, stackPivot);
         newItem.transform.localPosition = CalculateLocalPosition(stackedItems.Count);
         newItem.transform.localRotation = Quaternion.identity;
         stackedItems.Add(newItem);
+        if (!CanStack && feedback != null)
+        {
+            Debug.Log("AddItem 2에서 막힘");
+            feedback.ShowMax();
+        }
         parentManager?.RefreshStackLayout();
 
 

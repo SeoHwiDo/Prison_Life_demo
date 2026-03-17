@@ -24,6 +24,7 @@ public class PrisonerManager : MonoBehaviour
     private List<Transform> activeTiles = new List<Transform>();
     private List<NPCController> prisonerQueue = new List<NPCController>();
     public int ExpandLevel=> cumulativeCount;
+    public System.Action OnPrisonerStatusChanged;
     void Awake()
     {
         InitializePrison();
@@ -103,6 +104,7 @@ public class PrisonerManager : MonoBehaviour
     // --- 수용량 관련 공용 인터페이스 ---
 
     public int MaxCapacity => maxPrisonerCapacity;
+    public int CurrentPrisonerCount => prisonerQueue.Count;
 
     public void SetMaxCapacity(int newCapacity)
     {

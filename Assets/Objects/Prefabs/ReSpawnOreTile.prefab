@@ -46,7 +46,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 185f8ce600c05ba438c1a012df5f2430, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  respawnTime: 3
+  respawnTime: 10
   meshChild: {fileID: 5402538874383361087}
 --- !u!65 &4056706729659059868
 BoxCollider:
