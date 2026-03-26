@@ -43,6 +43,12 @@ public class ItemStacker : MonoBehaviour
     }
     private void OnValidate()
     {
+#if UNITY_EDITOR
+        if (UnityEditor.EditorApplication.isUpdating || UnityEditor.EditorApplication.isCompiling)
+        {
+            return;
+        }
+#endif
         // 에디터에서 값을 바꿀 때 즉시 프리팹 탐색 및 오프셋 계산
         LoadPrefabByTypeName();
     }
